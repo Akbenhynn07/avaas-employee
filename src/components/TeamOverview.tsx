@@ -7,8 +7,6 @@ import {
   Clock,
   Briefcase,
   Flame,
-  Calendar,
-  AlertCircle,
   Copy,
   Check,
   Download,
@@ -16,13 +14,12 @@ import {
 } from 'lucide-react';
 
 interface TeamOverviewProps {
-  currentUser: CompanyUser;
+  currentUser?: CompanyUser;
   entries: AttendanceEntry[];
   selectedDate: string;
 }
 
 export const TeamOverview: React.FC<TeamOverviewProps> = ({
-  currentUser,
   entries,
   selectedDate,
 }) => {

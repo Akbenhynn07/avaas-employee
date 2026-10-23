@@ -9,10 +9,8 @@ import {
   CheckCircle2,
   Sparkles,
   Flame,
-  FileText,
   AlertCircle,
   HelpCircle,
-  ChevronRight,
   RefreshCw,
 } from 'lucide-react';
 

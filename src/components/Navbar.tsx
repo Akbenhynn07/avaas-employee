@@ -1,6 +1,6 @@
 import React from 'react';
 import { CompanyUser } from '../types';
-import { LogOut, Calendar, Shield, Users, Clock } from 'lucide-react';
+import { LogOut, Calendar, Users, Clock } from 'lucide-react';
 
 interface NavbarProps {
   user: CompanyUser;

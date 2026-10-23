@@ -5,7 +5,7 @@ import { Login } from './components/Login';
 import { Navbar } from './components/Navbar';
 import { AttendanceForm } from './components/AttendanceForm';
 import { TeamOverview } from './components/TeamOverview';
-import { Users, UserCheck, ShieldCheck, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const STORAGE_KEY_USER = 'avaas_active_user';
 const STORAGE_KEY_ENTRIES = 'avaas_attendance_entries_v1';
