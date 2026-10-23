@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "avaas-employee",
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/avaas-logo.png",
+      "dest": "/avaas-logo.png"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

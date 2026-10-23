@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AVAAS | Executive & Employee Portal</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 font-weight=%22bold%22 fill=%22%232563eb%22>A</text></svg>" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            avaas: {
+              50: '#f0f7ff',
+              100: '#e0f0fe',
+              200: '#bae2fd',
+              300: '#7ccbfd',
+              400: '#36b1fa',
+              500: '#0c95eb',
+              600: '#0176c7',
+              700: '#025fa1',
+              800: '#065186',
+              900: '#0b436f',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f0f7ff;
+      color: #0f172a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    @keyframes softPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 0.95; }
+    }
+    .ambient-blob {
+      animation: softPulse 10s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#f0f7ff] text-slate-800 antialiased flex flex-col selection:bg-blue-600 selection:text-white">
+
+  <!-- Ambient Light Blue Lighting Decor -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[380px] bg-gradient-to-b from-blue-200/50 via-sky-100/40 to-transparent rounded-full blur-[90px] pointer-events-none ambient-blob z-0"></div>
+  <div class="fixed bottom-0 right-0 w-[500px] h-[300px] bg-gradient-to-t from-sky-200/40 to-transparent rounded-full blur-[100px] pointer-events-none z-0"></div>
+
+  <!-- Main Container -->
+  <div id="app" class="relative z-10 min-h-screen flex flex-col"></div>
+
+  <!-- Embedded Canvas for Confetti -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <script>
+    // --- CONFETTI CELEBRATION ENGINE ---
+    function launchCelebration() {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#2563eb', '#0284c7', '#059669', '#d97706', '#7c3aed', '#db2777'];
+
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.9) * 12,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+          alpha: 1,
+        });
+      }
+
+      let animationFrame;
+      function renderParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+
+        particles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.25; // gravity
+          p.rotation += p.rotationSpeed;
+          p.alpha -= 0.012;
+
+          if (p.alpha > 0) {
+            active = true;
+            ctx.save();
+            ctx.globalAlpha = Math.max(p.alpha, 0);
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+          }
+        });
+
+        if (active) {
+          animationFrame = requestAnimationFrame(renderParticles);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          cancelAnimationFrame(animationFrame);
+        }
+      }
+      renderParticles();
+    }
+
+    // --- REAL AUTHORIZED EMPLOYEES & ASSIGNED CREDENTIALS ---
+    const DEFAULT_ACCOUNTS = [
+      {
+        email: 'ceo@avaas.me',
+        name: 'Akshay',
+        password: 'akshay',
+        role: 'CEO',
+        title: 'Chief Executive Officer',
+        dept: 'Executive Leadership',
+        avatarBg: 'bg-amber-500 text-white',
+        initials: 'AK',
+        isCeo: true,
+      },
+      {
+        email: 'cpro@avaas.me',
+        name: 'Aaliya',
+        password: 'aaliya',
+        role: 'CPRO',
+        title: 'Chief Product / PR Officer',
+        dept: 'Public Relations & Product',
+        avatarBg: 'bg-cyan-600 text-white',
+        initials: 'AL',
+        isCeo: false,
+      },
+      {
+        email: 'coo@avaas.me',
+        name: 'Varshini',
+        password: 'varshini',
+        role: 'COO',
+        title: 'Chief Operating Officer',
+        dept: 'Operations & Strategy',
+        avatarBg: 'bg-emerald-600 text-white',
+        initials: 'VA',
+        isCeo: false,
+      },
+      {
+        email: 'cmo@avaas.me',
+        name: 'Anmol',
+        password: 'anmol',
+        role: 'CMO',
+        title: 'Chief Marketing Officer',
+        dept: 'Growth & Brand',
+        avatarBg: 'bg-rose-500 text-white',
+        initials: 'AN',
+        isCeo: false,
+      },
+      {
+        email: 'cto@avaas.me',
+        name: 'Annu Kumar',
+        password: 'annu kumar',
+        role: 'CTO',
+        title: 'Chief Technology Officer',
+        dept: 'Engineering & Tech',
+        avatarBg: 'bg-blue-600 text-white',
+        initials: 'AK',
+        isCeo: false,
+      },
+      {
+        email: 'cfo@avaas.me',
+        name: 'Koushik',
+        password: 'koushik',
+        role: 'CFO',
+        title: 'Chief Financial Officer',
+        dept: 'Finance & Planning',
+        avatarBg: 'bg-indigo-600 text-white',
+        initials: 'KO',
+        isCeo: false,
+      },
+    ];
+
+    let registeredUsers = DEFAULT_ACCOUNTS;
+
+    // Load registered users from backend API
+    async function fetchUsersFromDb() {
+      try {
+        const res = await fetch('/api/users');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.users && data.users.length > 0) {
+            registeredUsers = data.users;
+            render();
+          }
+        }
+      } catch (e) {
+        // Fallback to local default accounts
+      }
+    }
+
+    function getFormattedToday() {
+      return new Intl.DateTimeFormat('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(new Date());
+    }
+
+    function getTodayISO() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function formatDateFromISO(iso) {
+      if (!iso) return getFormattedToday();
+      const parts = iso.split('-');
+      if (parts.length !== 3) return iso;
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      return new Intl.DateTimeFormat('en-US', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    }
+
+    // App State - All dummy entries removed! Starts completely clean.
+    let state = {
+      currentUser: null,
+      activeTab: 'standup', // 'standup' | 'analysis' | 'board'
+      selectedDate: getTodayISO(),
+      meetingDuration: '45 mins',
+      customDuration: '',
+      workDone: '',
+      planTomorrow: '',
+      attendanceAlert: null,
+      loginError: null,
+      loginEmail: '',
+      loginPassword: '',
+      showCredentialsModal: false,
+      isSaving: false,
+
+      // Calendar state for Analysis Page
+      calendarMonth: new Date().getMonth(),
+      calendarYear: new Date().getFullYear(),
+      analysisSelectedDate: getTodayISO(),
+      analysisEmployeeFilter: 'all',
+      copiedDigest: false,
+    };
+
+    // Attendance entries loaded directly from SQLite database
+    let entries = [];
+
+    async function loadAttendanceFromDb() {
+      try {
+        const res = await fetch('/api/attendance');
+        if (res.ok) {
+          const data = await res.json();
+          entries = data.entries || [];
+          if (state.currentUser) {
+            syncUserTodayForm(state.currentUser);
+          }
+          render();
+        }
+      } catch (e) {
+        console.warn('Backend API unavailable, using offline cache');
+      }
+    }
+
+    // Restore saved session if any
+    try {
+      const savedUser = localStorage.getItem('avaas_active_session_v4');
+      if (savedUser) {
+        state.currentUser = JSON.parse(savedUser);
+      }
+    } catch (e) {}
+
+    function syncUserTodayForm(user) {
+      if (!user) return;
+      const todayEntry = entries.find(
+        e => e.userEmail.toLowerCase() === user.email.toLowerCase() && e.date === state.selectedDate
+      );
+      if (todayEntry) {
+        state.workDone = todayEntry.workDone;
+        state.planTomorrow = todayEntry.planTomorrow;
+        state.meetingDuration = todayEntry.meetingDuration;
+        state.attendanceAlert = `Attendance marked for ${todayEntry.formattedDate} date`;
+      } else {
+        state.workDone = '';
+        state.planTomorrow = '';
+        state.attendanceAlert = null;
+      }
+    }
+
+    // --- ACTIONS ---
+    window.handleLoginSubmit = async function(e) {
+      e.preventDefault();
+      state.loginError = null;
+
+      const emailVal = state.loginEmail.trim().toLowerCase();
+      const passVal = state.loginPassword.trim();
+
+      if (!emailVal) {
+        state.loginError = 'Please enter your company email address.';
+        render();
+        return;
+      }
+
+      if (!emailVal.endsWith('@avaas.me')) {
+        state.loginError = 'Access restricted: Only official @avaas.me company accounts are authorized.';
+        render();
+        return;
+      }
+
+      if (!passVal) {
+        state.loginError = 'Please enter your account password.';
+        render();
+        return;
+      }
+
+      // Authenticate against Backend SQLite Database
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailVal, password: passVal }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          state.loginError = data.error || 'Invalid credentials. Access denied.';
+          render();
+          return;
+        }
+
+        // Login Succeeded
+        state.currentUser = data.user;
+        localStorage.setItem('avaas_active_session_v4', JSON.stringify(data.user));
+        state.loginPassword = '';
+        state.loginError = null;
+
+        await loadAttendanceFromDb();
+        syncUserTodayForm(data.user);
+        render();
+
+      } catch (err) {
+        // Fallback to local evaluation if server API is cold
+        const found = registeredUsers.find(u => u.email.toLowerCase() === emailVal);
+        if (!found || found.password !== passVal) {
+          state.loginError = 'Incorrect password. One employee cannot open another employee\'s profile without their password.';
+          render();
+          return;
+        }
+        state.currentUser = found;
+        localStorage.setItem('avaas_active_session_v4', JSON.stringify(found));
+        syncUserTodayForm(found);
+        render();
+      }
+    };
+
+    window.handleLogout = function() {
+      state.currentUser = null;
+      state.loginPassword = '';
+      state.loginError = null;
+      localStorage.removeItem('avaas_active_session_v4');
+      render();
+    };
+
+    window.setTab = function(tab) {
+      state.activeTab = tab;
+      render();
+    };
+
+    window.setDurationPreset = function(preset) {
+      state.meetingDuration = preset;
+      render();
+    };
+
+    window.handleDateChange = function(newDate) {
+      state.selectedDate = newDate;
+      syncUserTodayForm(state.currentUser);
+      render();
+    };
+
+    window.handleFormSubmit = async function(e) {
+      e.preventDefault();
+
+      const workEl = document.getElementById('field-work');
+      const tomorrowEl = document.getElementById('field-tomorrow');
+      const customDurEl = document.getElementById('field-custom-duration');
+
+      const workVal = workEl ? workEl.value.trim() : state.workDone.trim();
+      const tomorrowVal = tomorrowEl ? tomorrowEl.value.trim() : state.planTomorrow.trim();
+      let durationVal = state.meetingDuration;
+
+      if (durationVal === 'Custom' && customDurEl) {
+        durationVal = customDurEl.value.trim() || 'Custom';
+      }
+
+      if (!workVal) {
+        alert('Please fill in what work you did today.');
+        return;
+      }
+
+      if (!tomorrowVal) {
+        alert('Please fill in what you are doing tomorrow.');
+        return;
+      }
+
+      const formatted = formatDateFromISO(state.selectedDate);
+      const confirmationText = `Attendance marked for ${formatted} date`;
+
+      const newEntry = {
+        id: `${state.currentUser.email}_${state.selectedDate}`,
+        userEmail: state.currentUser.email,
+        userName: state.currentUser.name || state.currentUser.role,
+        roleTitle: state.currentUser.title,
+        date: state.selectedDate,
+        formattedDate: formatted,
+        meetingDuration: durationVal,
+        workDone: workVal,
+        planTomorrow: tomorrowVal,
+        timestamp: Date.now(),
+      };
+
+      state.isSaving = true;
+      render();
+
+      // Save directly to Backend SQLite Database
+      try {
+        const res = await fetch('/api/attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newEntry),
+        });
+
+        if (res.ok) {
+          // Re-fetch all entries from database to guarantee synchronization
+          await loadAttendanceFromDb();
+        } else {
+          entries = [newEntry, ...entries.filter(it => it.id !== newEntry.id)];
+        }
+      } catch (err) {
+        entries = [newEntry, ...entries.filter(it => it.id !== newEntry.id)];
+      }
+
+      state.isSaving = false;
+      state.workDone = workVal;
+      state.planTomorrow = tomorrowVal;
+      state.attendanceAlert = confirmationText;
+
+      launchCelebration();
+      render();
+    };
+
+    // Calendar Navigation for CEO Analysis
+    window.prevCalendarMonth = function() {
+      if (state.calendarMonth === 0) {
+        state.calendarMonth = 11;
+        state.calendarYear -= 1;
+      } else {
+        state.calendarMonth -= 1;
+      }
+      render();
+    };
+
+    window.nextCalendarMonth = function() {
+      if (state.calendarMonth === 11) {
+        state.calendarMonth = 0;
+        state.calendarYear += 1;
+      } else {
+        state.calendarMonth += 1;
+      }
+      render();
+    };
+
+    window.selectAnalysisDate = function(isoDateStr) {
+      state.analysisSelectedDate = isoDateStr;
+      render();
+    };
+
+    window.copyAnalysisReport = function() {
+      const selected = state.analysisSelectedDate;
+      const formatted = formatDateFromISO(selected);
+      const dayEntries = entries.filter(e => e.date === selected);
+
+      const lines = [
+        `======================================================`,
+        `  AVAAS EXECUTIVE DAILY ATTENDANCE & STANDUP REPORT   `,
+        `======================================================`,
+        `Date: ${formatted}`,
+        `Attendance Rate: ${dayEntries.length}/${registeredUsers.length} Executives Marked Present`,
+        `Database: SQLite (avaas.db)`,
+        `Reviewed by: Akshay (CEO, ceo@avaas.me)`,
+        `------------------------------------------------------\n`,
+        ...registeredUsers.map(u => {
+          const entry = dayEntries.find(e => e.userEmail.toLowerCase() === u.email.toLowerCase());
+          if (!entry) {
+            return `[ ] ${u.role} - ${u.name} (${u.email}) - STATUS: ABSENT / PENDING\n`;
+          }
+          return `[✓] ${u.role} - ${u.name} (${u.email}) - STATUS: PRESENT
+  • Duration in Meeting Call: ${entry.meetingDuration}
+  • Work Done: ${entry.workDone}
+  • Next Day Plan: ${entry.planTomorrow}\n`;
+        })
+      ];
+
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        state.copiedDigest = true;
+        render();
+        setTimeout(() => {
+          state.copiedDigest = false;
+          render();
+        }, 2200);
+      });
+    };
+
+    // --- RENDER ENGINE ---
+    function render() {
+      const app = document.getElementById('app');
+      if (!app) return;
+
+      if (!state.currentUser) {
+        app.innerHTML = renderLoginView();
+      } else {
+        app.innerHTML = `
+          ${renderNavbar()}
+          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32">
+            ${state.activeTab === 'analysis' && state.currentUser.isCeo 
+                ? renderCeoAnalysisView() 
+                : state.activeTab === 'board'
+                ? renderBoardView()
+                : renderStandupView()}
+          </main>
+          ${renderFooter()}
+        `;
+      }
+    }
+
+    // --- NAVBAR ---
+    function renderNavbar() {
+      const user = state.currentUser;
+      const todayFormatted = getFormattedToday();
+      const hasCheckedInToday = entries.some(
+        e => e.userEmail.toLowerCase() === user.email.toLowerCase() && e.date === state.selectedDate
+      );
+
+      return `
+        <header class="sticky top-0 z-40 border-b border-blue-100 bg-white/95 backdrop-blur-md shadow-sm">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+              <!-- Left Brand -->
+              <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-500/20">
+                    A
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-2xl font-black tracking-tight text-blue-900">
+                      AVAAS
+                    </span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase text-blue-600 -mt-1 font-mono">
+                      EMPLOYEE DASHBOARD
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center gap-2 ml-4">
+                  <button onclick="setTab('standup')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                    state.activeTab === 'standup'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                      : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
+                  }">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>Mark Attendance</span>
+                    ${hasCheckedInToday ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
+                  </button>
+
+                  <button onclick="setTab('board')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                    state.activeTab === 'board'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                      : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
+                  }">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span>Team Board</span>
+                  </button>
+
+                  <!-- EXCLUSIVE CEO ANALYSIS PAGE TAB -->
+                  ${user.isCeo ? `
+                    <button onclick="setTab('analysis')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      state.activeTab === 'analysis'
+                        ? 'bg-gradient-to-r from-blue-700 to-indigo-700 text-white shadow-md shadow-blue-700/25'
+                        : 'text-blue-800 bg-blue-50/80 hover:bg-blue-100 border border-blue-200'
+                    }">
+                      <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span>CEO Calendar & Analysis</span>
+                      <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-mono font-bold">VIP</span>
+                    </button>
+                  ` : ''}
+                </nav>
+              </div>
+
+              <!-- Right Header: Date, Active User & Sign Out -->
+              <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/80 border border-blue-100 text-xs text-blue-900 font-semibold font-mono">
+                  <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>${todayFormatted}</span>
+                </div>
+
+                <div class="flex items-center gap-3 pl-3 border-l border-blue-100">
+                  <div class="w-9 h-9 rounded-xl ${user.avatarBg} flex items-center justify-center font-extrabold text-xs shadow-sm">
+                    ${user.initials}
+                  </div>
+                  <div class="hidden sm:flex flex-col text-left">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold text-slate-800">${user.name || user.role}</span>
+                      <span class="text-[10px] text-slate-400">(${user.role})</span>
+                      ${user.isCeo ? '<span class="text-[9px] bg-amber-100 text-amber-800 px-1 py-0.2 rounded font-mono font-bold">CEO</span>' : ''}
+                    </div>
+                    <span class="text-[11px] font-mono text-slate-500">${user.email}</span>
+                  </div>
+
+                  <button onclick="handleLogout()" title="Secure Logout" class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Mobile Subnav -->
+            <div class="flex md:hidden border-t border-blue-100 py-2 gap-2">
+              <button onclick="setTab('standup')" class="flex-1 py-2 rounded-xl text-xs font-bold text-center ${state.activeTab === 'standup' ? 'bg-blue-600 text-white' : 'text-slate-600 bg-white border border-blue-100'}">
+                Attendance
+              </button>
+              <button onclick="setTab('board')" class="flex-1 py-2 rounded-xl text-xs font-bold text-center ${state.activeTab === 'board' ? 'bg-blue-600 text-white' : 'text-slate-600 bg-white border border-blue-100'}">
+                Team Board
+              </button>
+              ${user.isCeo ? `
+                <button onclick="setTab('analysis')" class="flex-1 py-2 rounded-xl text-xs font-bold text-center ${state.activeTab === 'analysis' ? 'bg-blue-700 text-white' : 'text-blue-900 bg-blue-50 border border-blue-200'}">
+                  Analysis
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </header>
+      `;
+    }
+
+    // --- FORM VIEW ---
+    function renderStandupView() {
+      const user = state.currentUser;
+      const durationPresets = ['15 mins', '30 mins', '45 mins', '60 mins', '90 mins', 'Custom'];
+      const todayFormatted = formatDateFromISO(state.selectedDate);
+
+      return `
+        <div class="max-w-3xl mx-auto space-y-6">
+
+          <!-- Welcome Banner Card -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-blue-100 shadow-sm relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold mb-2">
+                  <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  Official Employee Check-In
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Welcome, <span class="text-blue-600">${user.name || user.role}</span>
+                </h1>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1">
+                  Log your daily meeting duration, what work you accomplished, and your roadmap for tomorrow.
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-50/70 border border-blue-100 self-start sm:self-center">
+                <div class="w-10 h-10 rounded-xl ${user.avatarBg} flex items-center justify-center font-bold text-sm shadow-sm">
+                  ${user.initials}
+                </div>
+                <div class="text-left">
+                  <div class="text-xs font-bold text-slate-800">${user.name} (${user.role})</div>
+                  <div class="text-[11px] font-mono text-blue-600">${user.email}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ATTENDANCE CONFIRMATION BANNER (Upon clicking submit) -->
+          ${state.attendanceAlert ? `
+            <div class="p-6 rounded-3xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 shadow-md shadow-emerald-500/5 relative overflow-hidden animate-fadeIn">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-600/30">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      Attendance Confirmed & Saved to Database
+                    </span>
+                    <h3 class="text-xl font-black text-emerald-900 mt-1">
+                      ${state.attendanceAlert}
+                    </h3>
+                    <p class="text-xs text-emerald-700 mt-0.5 font-medium">
+                      Your standup submission and meeting log have been recorded in the AVAAS SQLite database.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end sm:self-center">
+                  <button onclick="setTab('board')" class="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 rounded-xl transition shadow-sm">
+                    View Team Board →
+                  </button>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- MAIN ATTENDANCE FORM WIDGET -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-blue-100">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-bold text-slate-900">AVAAS Daily Standup & Attendance</h2>
+                  <p class="text-xs text-slate-500">Provide meeting call duration, work done, and plans for tomorrow</p>
+                </div>
+              </div>
+
+              <!-- Date Picker -->
+              <div class="flex items-center gap-2 bg-blue-50/80 px-3 py-1.5 rounded-xl border border-blue-200">
+                <span class="text-xs font-bold text-blue-900 hidden sm:inline">Date:</span>
+                <input
+                  type="date"
+                  value="${state.selectedDate}"
+                  onchange="handleDateChange(this.value)"
+                  class="bg-transparent text-blue-900 text-xs font-mono font-bold focus:outline-none cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <form onsubmit="handleFormSubmit(event)" class="space-y-6">
+
+              <!-- Field 1: Duration of your call in the meeting -->
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>1. Duration of your call in the meeting</span>
+                  </label>
+                  <span class="text-[11px] text-slate-500 font-mono">
+                    Selected: <strong class="text-blue-600">${state.meetingDuration}</strong>
+                  </span>
+                </div>
+
+                <!-- Duration preset chips -->
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  ${durationPresets.map(preset => `
+                    <button
+                      type="button"
+                      onclick="setDurationPreset('${preset}')"
+                      class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all text-center border ${
+                        state.meetingDuration === preset
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25 ring-2 ring-blue-400/30'
+                          : 'bg-blue-50/50 hover:bg-blue-100/70 text-slate-700 border-blue-100'
+                      }"
+                    >
+                      ${preset}
+                    </button>
+                  `).join('')}
+                </div>
+
+                ${state.meetingDuration === 'Custom' ? `
+                  <div class="pt-2">
+                    <input
+                      id="field-custom-duration"
+                      type="text"
+                      placeholder="e.g. 1 hour 15 minutes or 40 mins"
+                      class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Field 2: What work did you do? -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span>2. What work did you do?</span>
+                  </label>
+                  <span class="text-[11px] text-slate-400 font-mono">Today's Achievements</span>
+                </div>
+                <textarea
+                  id="field-work"
+                  rows="4"
+                  oninput="state.workDone = this.value"
+                  placeholder="Detail your completed milestones, decisions made during meetings, strategic reviews, or commits..."
+                  class="w-full p-4 rounded-2xl bg-white border border-slate-300 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 leading-relaxed font-sans shadow-sm"
+                >${state.workDone}</textarea>
+              </div>
+
+              <!-- Field 3: What are you doing tomorrow? -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>3. What are you doing tomorrow?</span>
+                  </label>
+                  <span class="text-[11px] text-slate-400 font-mono">Tomorrow's Priorities</span>
+                </div>
+                <textarea
+                  id="field-tomorrow"
+                  rows="3"
+                  oninput="state.planTomorrow = this.value"
+                  placeholder="Key priorities, calls scheduled, blockers to resolve, and next goals..."
+                  class="w-full p-4 rounded-2xl bg-white border border-slate-300 text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 leading-relaxed font-sans shadow-sm"
+                >${state.planTomorrow}</textarea>
+              </div>
+
+              <!-- Submit Action Button -->
+              <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 order-2 sm:order-1">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>Attendance date: <strong class="text-slate-800">${todayFormatted}</strong></span>
+                </div>
+
+                <button
+                  type="submit"
+                  ${state.isSaving ? 'disabled' : ''}
+                  class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-sky-600 to-blue-700 hover:from-blue-700 hover:to-sky-700 text-white font-extrabold text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5 transition-all transform active:scale-95 disabled:opacity-50 order-1 sm:order-2 cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>${state.isSaving ? 'Saving to Database...' : 'Submit & Mark Attendance'}</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // --- DEDICATED CEO CALENDAR & ANALYSIS VIEW ---
+    function renderCeoAnalysisView() {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const currentMonthName = months[state.calendarMonth];
+      const year = state.calendarYear;
+
+      const firstDayOfMonth = new Date(year, state.calendarMonth, 1).getDay();
+      const daysInMonth = new Date(year, state.calendarMonth + 1, 0).getDate();
+
+      const selectedIso = state.analysisSelectedDate;
+      const formattedSelected = formatDateFromISO(selectedIso);
+
+      const dateEntries = entries.filter(e => e.date === selectedIso);
+
+      const displayEntries = state.analysisEmployeeFilter === 'all'
+        ? dateEntries
+        : dateEntries.filter(e => e.userEmail.toLowerCase() === state.analysisEmployeeFilter.toLowerCase());
+
+      const presentCount = dateEntries.length;
+      const totalCount = registeredUsers.length;
+      const ratePct = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
+
+      let totalMeetingMinutes = 0;
+      dateEntries.forEach(e => {
+        const dur = (e.meetingDuration || '').toLowerCase();
+        if (dur.includes('15')) totalMeetingMinutes += 15;
+        else if (dur.includes('30')) totalMeetingMinutes += 30;
+        else if (dur.includes('45')) totalMeetingMinutes += 45;
+        else if (dur.includes('60') || dur.includes('1 hour') || dur.includes('1h')) totalMeetingMinutes += 60;
+        else if (dur.includes('90')) totalMeetingMinutes += 90;
+        else totalMeetingMinutes += 40;
+      });
+
+      return `
+        <div class="space-y-6">
+
+          <!-- VIP CEO Analysis Header -->
+          <div class="bg-gradient-to-r from-blue-700 via-sky-700 to-indigo-800 text-white rounded-3xl p-6 sm:p-8 shadow-lg shadow-blue-800/15 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold mb-2">
+                  <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                  CEO Live SQLite Database Analytics
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  Leadership Attendance & Responses Calendar
+                </h1>
+                <p class="text-blue-100 text-xs sm:text-sm mt-1 max-w-xl">
+                  Inspect employee responses, meeting call durations, and task commitments for any date on the calendar.
+                </p>
+              </div>
+
+              <!-- Export / Copy Action -->
+              <div class="flex items-center gap-2 self-start md:self-center">
+                <button
+                  onclick="copyAnalysisReport()"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-blue-900 font-bold text-xs hover:bg-blue-50 transition shadow-md"
+                >
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  <span>${state.copiedDigest ? 'Copied Summary!' : 'Copy Day Summary'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Analysis Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT: INTERACTIVE CALENDAR WIDGET (5 Cols) -->
+            <div class="lg:col-span-5 bg-white rounded-3xl p-6 border border-blue-100 shadow-sm flex flex-col justify-between">
+              <div>
+                <!-- Calendar Header -->
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-sm font-extrabold text-slate-900">${currentMonthName} ${year}</h3>
+                      <p class="text-[11px] text-slate-500">Click any date to view attendance</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-1">
+                    <button onclick="prevCalendarMonth()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button onclick="nextCalendarMonth()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Calendar Weekdays -->
+                <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-slate-400 mb-2">
+                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
+
+                <!-- Calendar Days Grid -->
+                <div class="grid grid-cols-7 gap-1.5">
+                  ${(() => {
+                    let html = '';
+                    for (let i = 0; i < firstDayOfMonth; i++) {
+                      html += '<div class="h-11 rounded-xl bg-slate-50/50 opacity-40"></div>';
+                    }
+                    for (let d = 1; d <= daysInMonth; d++) {
+                      const dayStr = String(d).padStart(2, '0');
+                      const monthStr = String(state.calendarMonth + 1).padStart(2, '0');
+                      const fullIso = `${year}-${monthStr}-${dayStr}`;
+
+                      const isSelected = state.analysisSelectedDate === fullIso;
+                      const isToday = getTodayISO() === fullIso;
+
+                      const daySubmissions = entries.filter(e => e.date === fullIso).length;
+                      const hasSubmissions = daySubmissions > 0;
+
+                      html += `
+                        <button
+                          type="button"
+                          onclick="selectAnalysisDate('${fullIso}')"
+                          class="h-11 rounded-xl flex flex-col items-center justify-center relative text-xs font-bold transition-all ${
+                            isSelected
+                              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-400'
+                              : isToday
+                              ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                              : hasSubmissions
+                              ? 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-slate-50 hover:bg-blue-50/60 text-slate-700 border border-slate-100'
+                          }"
+                        >
+                          <span>${d}</span>
+                          ${hasSubmissions ? `
+                            <span class="flex items-center gap-0.5 mt-0.5">
+                              <span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-emerald-500'}"></span>
+                              <span class="text-[9px] ${isSelected ? 'text-blue-100' : 'text-emerald-700'}">${daySubmissions}</span>
+                            </span>
+                          ` : ''}
+                        </button>
+                      `;
+                    }
+                    return html;
+                  })()}
+                </div>
+              </div>
+
+              <!-- Calendar Legend -->
+              <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span>Recorded</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                  <span>Selected</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-100 border border-blue-300"></span>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: DETAILED RESPONSES & METRICS FOR SELECTED DATE (7 Cols) -->
+            <div class="lg:col-span-7 space-y-4">
+
+              <!-- Date Summary Metric Banner -->
+              <div class="bg-white rounded-3xl p-5 border border-blue-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-[10px] uppercase font-mono font-bold tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                    Inspecting Date
+                  </span>
+                  <h3 class="text-base font-extrabold text-slate-900 mt-1">
+                    ${formattedSelected}
+                  </h3>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <div class="text-xs text-slate-500 font-semibold">Attendance</div>
+                    <div class="text-lg font-black text-blue-900">${presentCount} / ${totalCount} Present (${ratePct}%)</div>
+                  </div>
+                  <div class="text-right pl-3 border-l border-slate-100">
+                    <div class="text-xs text-slate-500 font-semibold">Total Call Time</div>
+                    <div class="text-lg font-black text-emerald-600">~${totalMeetingMinutes} mins</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Employee Filter -->
+              <div class="flex items-center justify-between gap-2 px-1">
+                <span class="text-xs font-bold text-slate-700">Filter Responses:</span>
+                <select
+                  onchange="state.analysisEmployeeFilter = this.value; render();"
+                  class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-xl px-3 py-1.5 focus:outline-none focus:border-blue-500 shadow-sm"
+                >
+                  <option value="all" ${state.analysisEmployeeFilter === 'all' ? 'selected' : ''}>All Executives (${presentCount} entries)</option>
+                  ${registeredUsers.map(u => `
+                    <option value="${u.email}" ${state.analysisEmployeeFilter === u.email ? 'selected' : ''}>
+                      ${u.name} (${u.role})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Responses List -->
+              <div class="space-y-3">
+                ${displayEntries.length > 0 ? displayEntries.map(entry => {
+                  const emp = registeredUsers.find(u => u.email.toLowerCase() === entry.userEmail.toLowerCase());
+                  return `
+                    <div class="bg-white rounded-3xl p-5 border border-blue-100 shadow-sm hover:shadow-md transition space-y-3">
+                      <!-- Employee Header -->
+                      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 rounded-xl ${emp ? emp.avatarBg : 'bg-blue-600 text-white'} flex items-center justify-center font-bold text-sm shadow-sm">
+                            ${emp ? emp.initials : 'EX'}
+                          </div>
+                          <div>
+                            <div class="flex items-center gap-2">
+                              <span class="text-sm font-extrabold text-slate-900">${entry.userName}</span>
+                              <span class="text-xs text-slate-500">(${entry.roleTitle})</span>
+                            </div>
+                            <span class="text-xs font-mono text-blue-600">${entry.userEmail}</span>
+                          </div>
+                        </div>
+
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                          Marked Present
+                        </span>
+                      </div>
+
+                      <!-- Meeting Call Duration -->
+                      <div class="flex items-center gap-2 text-xs">
+                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="font-bold text-slate-600">Duration of call in meeting:</span>
+                        <span class="font-mono font-extrabold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200">
+                          ${entry.meetingDuration}
+                        </span>
+                      </div>
+
+                      <!-- What Work Did You Do? -->
+                      <div class="bg-blue-50/50 p-3.5 rounded-2xl border border-blue-100 space-y-1">
+                        <div class="flex items-center gap-1.5 text-blue-900 font-extrabold text-xs">
+                          <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                          <span>What work did you do?</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed pl-4 border-l-2 border-indigo-400 whitespace-pre-line">
+                          ${entry.workDone}
+                        </p>
+                      </div>
+
+                      <!-- What Are You Doing Tomorrow? -->
+                      <div class="bg-amber-50/40 p-3.5 rounded-2xl border border-amber-100 space-y-1">
+                        <div class="flex items-center gap-1.5 text-amber-900 font-extrabold text-xs">
+                          <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                          <span>What are you doing tomorrow?</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed pl-4 border-l-2 border-amber-400 whitespace-pre-line">
+                          ${entry.planTomorrow}
+                        </p>
+                      </div>
+                    </div>
+                  `;
+                }).join('') : `
+                  <div class="bg-white rounded-3xl p-8 border border-blue-100 text-center space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-400 flex items-center justify-center mx-auto">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-800">No Submissions on this Date</h4>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                      No employee has submitted attendance or standup responses for ${formattedSelected} yet.
+                    </p>
+                  </div>
+                `}
+              </div>
+
+              <!-- Status Roster for this date -->
+              <div class="bg-white rounded-3xl p-5 border border-blue-100 shadow-sm space-y-2">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                  Attendance Status Roster (${formattedSelected})
+                </span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
+                  ${registeredUsers.map(u => {
+                    const hasSubmitted = dateEntries.some(e => e.userEmail.toLowerCase() === u.email.toLowerCase());
+                    return `
+                      <div class="p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
+                        hasSubmitted
+                          ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900'
+                          : 'bg-slate-50 border-slate-200 text-slate-500'
+                      }">
+                        <div class="truncate text-xs font-bold">
+                          <span>${u.name}</span>
+                        </div>
+                        <span class="text-[10px] font-mono font-bold ${hasSubmitted ? 'text-emerald-700' : 'text-slate-400'}">
+                          ${hasSubmitted ? 'Present' : 'Pending'}
+                        </span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    // --- TEAM BOARD VIEW ---
+    function renderBoardView() {
+      const todayFormatted = formatDateFromISO(state.selectedDate);
+      const dayEntries = entries.filter(e => e.date === state.selectedDate);
+      const checkedInCount = dayEntries.length;
+      const totalCount = registeredUsers.length;
+      const pct = totalCount > 0 ? Math.round((checkedInCount / totalCount) * 100) : 0;
+
+      return `
+        <div class="space-y-6">
+
+          <!-- Stat Overview Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Progress Card -->
+            <div class="bg-white p-5 rounded-3xl border border-blue-100 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Attendance Rate</span>
+                <span class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">${pct}%</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-slate-900">${checkedInCount}</span>
+                <span class="text-slate-500 text-sm font-semibold">/ ${totalCount} Executives Marked</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-sky-500 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+              </div>
+            </div>
+
+            <!-- Team Roster Card -->
+            <div class="bg-white p-5 rounded-3xl border border-blue-100 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Leadership Team</span>
+                <span class="text-xs font-mono text-blue-600 font-bold">@avaas.me</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-slate-900">${totalCount}</span>
+                <span class="text-slate-500 text-sm font-semibold">Executive Accounts</span>
+              </div>
+              <div class="flex -space-x-2 mt-3 overflow-hidden">
+                ${registeredUsers.map(u => `
+                  <div title="${u.name} (${u.email})" class="w-8 h-8 rounded-xl ${u.avatarBg} border-2 border-white flex items-center justify-center text-[11px] font-extrabold shadow-sm">
+                    ${u.initials}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Executive Sync Actions -->
+            <div class="bg-white p-5 rounded-3xl border border-blue-100 shadow-sm flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Standup Summary</span>
+                <p class="text-xs text-slate-500 mt-1">Copy formatted standup summary for sync meetings.</p>
+              </div>
+              <div class="flex items-center gap-2 mt-3">
+                <button onclick="copyAnalysisReport()" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-md shadow-blue-500/20">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  <span>${state.copiedDigest ? 'Copied to Clipboard!' : 'Copy Summary'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Board Roster Section -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-blue-100 shadow-sm">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+              <div>
+                <h3 class="text-lg font-bold text-slate-900">
+                  Executive Daily Check-In Roster
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Live database submissions from all 6 company accounts for ${todayFormatted}</p>
+              </div>
+            </div>
+
+            <!-- Executive Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${registeredUsers.map(user => {
+                const entry = dayEntries.find(e => e.userEmail.toLowerCase() === user.email.toLowerCase());
+                const isLogged = !!entry;
+                return `
+                  <div class="rounded-3xl p-5 border transition-all ${
+                    isLogged
+                      ? 'bg-blue-50/40 border-blue-200 shadow-sm'
+                      : 'bg-slate-50/70 border-slate-200 border-dashed opacity-80'
+                  }">
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl ${user.avatarBg} flex items-center justify-center font-extrabold text-sm shadow-sm">
+                          ${user.initials}
+                        </div>
+                        <div>
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm font-extrabold text-slate-900">${user.name}</span>
+                            <span class="text-xs text-slate-500">(${user.role})</span>
+                            ${user.isCeo ? '<span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-mono font-bold">CEO</span>' : ''}
+                          </div>
+                          <span class="text-xs font-mono text-blue-600">${user.email}</span>
+                        </div>
+                      </div>
+
+                      ${isLogged ? `
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold">
+                          <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                          Present
+                        </span>
+                      ` : `
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-semibold">
+                          Pending
+                        </span>
+                      `}
+                    </div>
+
+                    ${isLogged && entry ? `
+                      <div class="mt-4 pt-3 border-t border-blue-100 space-y-2.5">
+                        <div class="flex items-center gap-2 text-xs">
+                          <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                          <span class="text-slate-600 font-bold">Meeting Call Duration:</span>
+                          <span class="text-blue-800 font-mono font-bold bg-blue-100/70 px-2 py-0.5 rounded border border-blue-200">${entry.meetingDuration}</span>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-2xl border border-blue-100 text-xs space-y-1">
+                          <div class="flex items-center gap-1.5 text-indigo-700 font-bold text-[11px]">
+                            <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>Work Completed:</span>
+                          </div>
+                          <p class="text-slate-700 leading-relaxed pl-3 border-l-2 border-indigo-300 whitespace-pre-line">${entry.workDone}</p>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-2xl border border-blue-100 text-xs space-y-1">
+                          <div class="flex items-center gap-1.5 text-amber-700 font-bold text-[11px]">
+                            <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>Tomorrow's Roadmap:</span>
+                          </div>
+                          <p class="text-slate-700 leading-relaxed pl-3 border-l-2 border-amber-300 whitespace-pre-line">${entry.planTomorrow}</p>
+                        </div>
+                      </div>
+                    ` : `
+                      <div class="mt-4 pt-3 border-t border-slate-200 text-center py-3">
+                        <span class="text-xs text-slate-400 italic">No standup submitted for today yet</span>
+                      </div>
+                    `}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    // --- LOGIN VIEW (Fullscreen AVAAS Logo Background) ---
+    function renderLoginView() {
+      return `
+        <div class="relative min-h-screen w-full flex items-center justify-center p-4 bg-white" style="background-image: url('/avaas-logo.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+          <!-- Soft translucent white overlay so the logo spans the entire screen while form remains crystal clear -->
+          <div class="absolute inset-0 bg-white/45 backdrop-blur-[1px]"></div>
+
+          <div class="relative w-full max-w-md z-10">
+
+            <!-- Login Box -->
+            <div class="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-slate-200/90 shadow-blue-900/10">
+              <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
+                    A
+                  </div>
+                  <div>
+                    <h2 class="text-base font-extrabold text-slate-900">Secure Sign In</h2>
+                    <p class="text-xs text-slate-500">Authenticate with company email</p>
+                  </div>
+                </div>
+                <div class="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+                  AVAAS Portal
+                </div>
+              </div>
+
+              ${state.loginError ? `
+                <div class="mb-5 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2.5">
+                  <svg class="w-4 h-4 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>${state.loginError}</span>
+                </div>
+              ` : ''}
+
+              <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Company Email
+                  </label>
+                  <input
+                    type="email"
+                    value="${state.loginEmail}"
+                    oninput="state.loginEmail = this.value"
+                    placeholder="e.g. ceo@avaas.me"
+                    class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 font-mono shadow-sm"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value="${state.loginPassword}"
+                    oninput="state.loginPassword = this.value"
+                    placeholder="••••••••"
+                    class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 shadow-sm"
+                  />
+                  <p class="text-[11px] text-slate-400 mt-1">One person cannot open another's profile without their password.</p>
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] mt-2"
+                >
+                  <span>Sign In to Dashboard</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+              </form>
+
+            </div>
+
+            <!-- Footer note -->
+            <div class="mt-6 text-center text-xs text-slate-500 font-mono font-medium drop-shadow-sm">
+              AVAAS Confidential Employee Workspace
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    // --- FOOTER ---
+    function renderFooter() {
+      return `
+        <footer class="border-t border-blue-100 bg-white/90 py-6 text-center text-xs text-slate-500">
+          <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-blue-900">AVAAS</span>
+              <span>• Executive Attendance & Daily Standup Suite</span>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500">
+              Database: SQLite • Authorized: ceo@avaas.me, cpro, cmo, cfo, coo, cto
+            </div>
+          </div>
+        </footer>
+      `;
+    }
+
+    // Initial load
+    fetchUsersFromDb();
+    loadAttendanceFromDb();
+    render();
+  </script>
+</body>
+</html>
